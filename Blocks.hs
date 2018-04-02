@@ -1,5 +1,6 @@
 module Blocks
     ( Block
+    , parse, layout
     )
     where
 

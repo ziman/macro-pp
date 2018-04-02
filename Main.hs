@@ -5,4 +5,5 @@ import Blocks
 
 main :: IO ()
 main = do
-    putStrLn "Hello World!"
+    xs <- parse . lines <$> readFile "sample.py"
+    putStrLn . unlines $ concatMap layout xs
