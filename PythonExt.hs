@@ -1,8 +1,10 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE LambdaCase #-}
 
 module PythonExt
     ( Macro(..)
     , macro
+    , layout
     ) where
 
 import Parser
@@ -28,7 +30,8 @@ macro :: Parser Macro
 macro = macroTest
 
 macroToLines :: Macro -> [T.Text]
-macroToLines = error "not implemented"
+macroToLines = \case
+    MacroTest i -> ["## macro test " <> T.pack (show i) <> " ##"]
 
 indentation :: T.Text -> T.Text
 indentation = fst . T.span (== ' ')
@@ -36,6 +39,8 @@ indentation = fst . T.span (== ' ')
 layout :: T.Text -> [Block Macro] -> [T.Text]
 layout ind [] = []
 layout ind (Verbatim t : bs) = t : layout (indentation $ T.reverse t) bs
-layout ind (Macro m : bs) = foldr ((++) . fmtLine) (layout ind bs) (macroToLines m)
+layout ind (Macro m : bs) = macroToLines m `before` layout ind bs
   where
-    fmtLine line = [ind, line, "\n"]
+    [] `before` ls = ls
+    [x] `before` ls = [ind, x] ++ ls
+    (x:xs) `before` ls = [ind, x, "\n"] ++ (xs `before` ls)
