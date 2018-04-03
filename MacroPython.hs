@@ -57,15 +57,44 @@ parserEnum = do
 parser :: Parser MacroPython
 parser = parserEnum
 
+indent :: [T.Text] -> [T.Text]
+indent = map ("    " <>)
+
 toLines :: MacroPython -> [T.Text]
 toLines (Enum n ctors)
-    = concatMap fmtCtor $ zip [0..] ctors
+    = concatMap fmtCtor (zip [0..] ctors)
       ++ fmtEnum n ctors
       ++ fmtCodec n ctors
   where
-    fmtCtor (i, Ctor name fields) = []
+    fmtField (Field n ty) = T.pack n <> " : " <> T.pack ty
+
+    fmtCtor :: (Int, Ctor) -> [T.Text]
+    fmtCtor (tag, Ctor name fields) =
+        ("class " <> T.pack name <> "(NamedTuple):")
+        : indent (
+            map fmtField fields
+            ++ [ "tag : int = " <> T.pack (show tag)
+               , ""
+               ]
+          )
+
     fmtEnum n ctors = []
-    fmtCodec n ctors = []
+
+    fmtCtorC :: (Int, Ctor) -> T.Text
+    fmtCtorC (tag, Ctor n fields)
+        = T.pack n
+            <> ": ("
+            <> T.concat [
+                T.pack ty <> ","
+                | Field n ty <- fields]
+            <> "),"
+
+    fmtCodec n ctors =
+        (T.pack n <> "C = enumC('" <> T.pack n <> "', {")
+        : indent (
+            map fmtCtorC $ zip [0..] ctors
+          )
+        ++ ["})"]
 
 macroPython :: Macro MacroPython
 macroPython = Macro

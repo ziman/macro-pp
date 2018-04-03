@@ -9,6 +9,7 @@ class Model:
     PreorderMaximization(p = PreorderParams, q = bool)
     UndominatedChoice(strict = bool)
     TopTwo
+    pass
 
 class Preprocessor:
     foo
