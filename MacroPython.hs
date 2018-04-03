@@ -16,25 +16,56 @@ import Text.Parsec.Combinator
 import Data.Monoid
 import qualified Data.Text as T
 
-data MacroPython
-    = Enum String [String]
+data Field = Field
+    { fieldName :: String
+    , fieldType :: String
+    }
     deriving Show
+
+data Ctor = Ctor
+    { ctorName   :: String
+    , ctorFields :: [Field]
+    }
+    deriving Show
+
+data MacroPython
+    = Enum String [Ctor]
+    deriving Show
+
+field :: Parser Field
+field = do
+    name <- ident
+    kwd "="
+    ty <- many1 $ satisfy (`notElem` [',', ')'])
+    pure $ Field name ty
+
+ctor :: Parser Ctor
+ctor = do
+    name <- ident
+    fields <- option [] $ parens (field `sepBy` kwd ",")
+    pure $ Ctor name fields
 
 parserEnum :: Parser MacroPython
 parserEnum = do
     kwd "@macro(enum)"
     kwd "class"
-    enumName <- ident
+    name <- ident
     kwd ":"
-    cases <- ident `manyTill` atom "pass"
-    pure $ Enum enumName cases
+    ctors <- ctor `manyTill` atom "pass"
+    pure $ Enum name ctors
 
 parser :: Parser MacroPython
 parser = parserEnum
 
 toLines :: MacroPython -> [T.Text]
-toLines = \case
-    Enum n cs -> ("# enum " <> T.pack n) : map (\c ->  "#  -> " <> T.pack c) cs
+toLines (Enum n ctors)
+    = concatMap fmtCtor $ zip [0..] ctors
+      ++ fmtEnum n ctors
+      ++ fmtCodec n ctors
+  where
+    fmtCtor (i, Ctor name fields) = []
+    fmtEnum n ctors = []
+    fmtCodec n ctors = []
 
 macroPython :: Macro MacroPython
 macroPython = Macro

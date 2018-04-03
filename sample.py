@@ -4,20 +4,11 @@ def f(x):
 
     return x + 1
 
-class Enum(Colour):
-    Red(Colour)
-    Green(Colour)
-    Blue(Colour)
-
-macro(3)
-
 @macro(enum)
-class Colour:
-    red
-    green
-    blue
-    pass
-
+class Model:
+    PreorderMaximization(p = PreorderParams, q = bool)
+    UndominatedChoice(strict = bool)
+    TopTwo
 
 class Preprocessor:
     foo
