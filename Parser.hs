@@ -2,7 +2,7 @@ module Parser
     ( Parser
     , Block(..)
     , atom, kwd, ident
-    , parens
+    , parens, sqbrackets
     , blocks
     , Text.Parsec.parse
     )
@@ -31,6 +31,9 @@ kwd s = atom s *> spaces
 
 parens :: Parser a -> Parser a
 parens p = kwd "(" *> p <* kwd ")"
+
+sqbrackets :: Parser a -> Parser a
+sqbrackets p = kwd "[" *> p <* kwd "]"
 
 ident :: Parser String
 ident = many1 identChar <* spaces

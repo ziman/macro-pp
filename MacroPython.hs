@@ -13,12 +13,15 @@ import Text.Parsec
 import Text.Parsec.Char
 import Text.Parsec.Combinator
 
+import Data.List
 import Data.Monoid
 import qualified Data.Text as T
 
+data Type = Type String [Type] deriving Show  -- name, args
+
 data Field = Field
     { fieldName :: String
-    , fieldType :: String
+    , fieldType :: Type
     }
     deriving Show
 
@@ -32,11 +35,17 @@ data MacroPython
     = Enum String [Ctor]
     deriving Show
 
+ftype :: Parser Type
+ftype = do
+    head <- ident
+    args <- option [] $ sqbrackets (ftype `sepBy` kwd ",")
+    pure $ Type head args
+
 field :: Parser Field
 field = do
     name <- ident
     kwd "="
-    ty <- many1 $ satisfy (`notElem` [',', ')'])
+    ty <- ftype
     pure $ Field name ty
 
 ctor :: Parser Ctor
@@ -66,7 +75,10 @@ toLines (Enum n ctors)
       ++ fmtEnum n ctors
       ++ fmtCodec n ctors
   where
-    fmtField (Field n ty) = T.pack n <> " : " <> T.pack ty
+    fmtType (Type head []) = T.pack head
+    fmtType (Type head args) = T.pack (head ++ "[" ++ intercalate ", " (map fmtType args) ++ "]")
+
+    fmtField (Field n ty) = T.pack n <> " : " <> fmtType ty
 
     fmtCtor :: (Int, Ctor) -> [T.Text]
     fmtCtor (tag, Ctor name fields) =
@@ -91,7 +103,7 @@ toLines (Enum n ctors)
         = T.pack n
             <> ": ("
             <> T.concat [
-                T.pack ty <> ","
+                "???"
                 | Field n ty <- fields]
             <> "),"
 
