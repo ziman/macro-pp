@@ -17,22 +17,24 @@ import Data.Monoid
 import qualified Data.Text as T
 
 data MacroPython
-    = MacroTest Int
+    = Enum String [String]
     deriving Show
 
-parserMacroTest :: Parser MacroPython
-parserMacroTest = do
-    kwd "macro("
-    i <- read <$> many1 digit
-    kwd ")"
-    pure $ MacroTest i
+parserEnum :: Parser MacroPython
+parserEnum = do
+    kwd "@macro(enum)"
+    kwd "class"
+    enumName <- ident
+    kwd ":"
+    cases <- ident `manyTill` atom "_end_"
+    pure $ Enum enumName cases
 
 parser :: Parser MacroPython
-parser = parserMacroTest
+parser = parserEnum
 
 toLines :: MacroPython -> [T.Text]
 toLines = \case
-    MacroTest i -> ["## macro test " <> T.pack (show i) <> " ##"]
+    Enum n cs -> ("# enum " <> T.pack n) : map (\c ->  "#  -> " <> T.pack c) cs
 
 macroPython :: Macro MacroPython
 macroPython = Macro

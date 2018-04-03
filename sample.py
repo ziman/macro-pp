@@ -11,6 +11,13 @@ class Enum(Colour):
 
 macro(3)
 
+@macro(enum)
+class Colour:
+    red
+    green
+    blue
+    _end_
+
 class Preprocessor:
     foo
     x = x + 1

@@ -1,12 +1,14 @@
 module Parser
     ( Parser
     , Block(..)
-    , kwd
+    , atom, kwd, ident
+    , parens
     , blocks
     , Text.Parsec.parse
     )
     where
 
+import Data.Char
 import Text.Parsec
 import Text.Parsec.Char
 import qualified Data.Text as T
@@ -21,8 +23,20 @@ ignore = (*> pure ())
 blocks :: Parser m -> Parser [Block m]
 blocks = fmap aggregate . many . Parser.token
 
+atom :: String -> Parser ()
+atom = ignore . try . string
+
 kwd :: String -> Parser ()
-kwd = ignore . try . string
+kwd s = atom s *> spaces
+
+parens :: Parser a -> Parser a
+parens p = kwd "(" *> p <* kwd ")"
+
+ident :: Parser String
+ident = many1 identChar <* spaces
+
+identChar :: Parser Char
+identChar = satisfy (\c -> isAlpha c || isNumber c || c `elem` "_")
 
 spanChars :: [Token m] -> ([Char], [Token m])
 spanChars (TChar c : rest) = case spanChars rest of
