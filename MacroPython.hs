@@ -26,7 +26,7 @@ parserEnum = do
     kwd "class"
     enumName <- ident
     kwd ":"
-    cases <- ident `manyTill` atom "_end_"
+    cases <- ident `manyTill` atom "pass"
     pure $ Enum enumName cases
 
 parser :: Parser MacroPython

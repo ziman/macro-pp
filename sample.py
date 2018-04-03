@@ -16,7 +16,8 @@ class Colour:
     red
     green
     blue
-    _end_
+    pass
+
 
 class Preprocessor:
     foo
