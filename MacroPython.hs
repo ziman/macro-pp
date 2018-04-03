@@ -78,7 +78,13 @@ toLines (Enum n ctors)
                ]
           )
 
-    fmtEnum n ctors = []
+    fmtEnum n ctors =
+        (T.pack n <> " = Union[")
+        : indent [
+                T.pack cn <> ","
+                | Ctor cn _fields <- ctors
+            ]
+        ++ ["]", ""]
 
     fmtCtorC :: (Int, Ctor) -> T.Text
     fmtCtorC (tag, Ctor n fields)
