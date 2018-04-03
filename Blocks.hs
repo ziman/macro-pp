@@ -30,3 +30,6 @@ indent = ("    " ++)
 
 parse :: [String] -> [Block]
 parse = parseBlocks . map indentation
+
+fold :: (Block -> [Block]) -> [Block] -> [Block]
+fold f = concat . map (fold f . f)

@@ -1,9 +1,13 @@
 module Main where
 
 import Parser
-import Blocks
+import PythonExt
+import qualified Data.Text as T
+import qualified Data.Text.IO as TIO
 
 main :: IO ()
 main = do
-    xs <- parse . lines <$> readFile "sample.py"
-    putStrLn . unlines $ concatMap layout xs
+    source <- TIO.readFile "sample.py"
+    case parse (blocks macro) "sample.py" source of
+        Left err -> print err
+        Right bs -> mapM_ print bs

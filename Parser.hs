@@ -1,26 +1,47 @@
 module Parser
-    ( Parser, runParser
+    ( Parser
+    , Block(..)
+    , kwd
+    , blocks
+    , Text.Parsec.parse
     )
     where
 
-import Control.Arrow
+import Text.Parsec
+import Text.Parsec.Char
+import qualified Data.Text as T
 
-data Parser m a = P
-    { runParser :: String -> m (a, String)
-    }
+type Parser = Parsec T.Text ()
+data Token m = TChar Char | TMacro m deriving Show
+data Block m = Verbatim T.Text | Macro m deriving Show
 
-instance Functor m => Functor (Parser m) where
-    fmap f (P g) = P $ fmap (first f) . g
+ignore :: Parser a -> Parser ()
+ignore = (*> pure ())
 
-instance Monad m => Applicative (Parser m) where
-    pure x = P $ \s -> pure (x, s)
-    P f <*> P g = P $ \s -> do
-        (f', s' ) <- f s
-        (x', s'') <- g s'
-        return (f' x', s'')
+blocks :: Parser m -> Parser [Block m]
+blocks = fmap aggregate . many . Parser.token
 
-instance Monad m => Monad (Parser m) where
-    return = pure
-    P f >>= g = P $ \s -> do
-        (x, s') <- f s
-        runParser (g x) s'
+kwd :: String -> Parser ()
+kwd = ignore . try . string
+
+spanChars :: [Token m] -> ([Char], [Token m])
+spanChars (TChar c : rest) = case spanChars rest of
+    (cs, ts) -> (c:cs, ts)
+spanChars rest = ([], rest)
+
+aggregate :: [Token m] -> [Block m]
+aggregate ts = case spanChars ts of
+    ([], ts) -> aggregate' ts
+    (cs, ts) -> Verbatim (T.pack cs) : aggregate' ts
+  where
+    aggregate' [] = []
+    aggregate' (TMacro m : rest) = Macro m : aggregate rest
+    aggregate' ts = error "impossible!"
+
+    isChar (TChar _) = True
+    isChar _ = False
+
+token :: Parser m -> Parser (Token m)
+token macro
+    =   TMacro <$> macro
+    <|> TChar <$> anyChar
