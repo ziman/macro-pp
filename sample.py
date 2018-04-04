@@ -4,7 +4,7 @@ def f(x):
 
     return x + 1
 
-@macro(enum)
+@enum
 class Model:
     PreorderMaximization(p = PreorderParams, q = bool)
     UndominatedChoice(strict = bool)
