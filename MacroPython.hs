@@ -75,10 +75,10 @@ toLines (Enum n ctors)
       ++ fmtEnum n ctors
       ++ fmtCodec n ctors
   where
-    fmtType (Type head []) = T.pack head
-    fmtType (Type head args) = T.pack (head ++ "[" ++ intercalate ", " (map fmtType args) ++ "]")
+    fmtType (Type head []) = head
+    fmtType (Type head args) = head ++ "[" ++ intercalate ", " (map fmtType args) ++ "]"
 
-    fmtField (Field n ty) = T.pack n <> " : " <> fmtType ty
+    fmtField (Field n ty) = T.pack n <> " : " <> T.pack (fmtType ty)
 
     fmtCtor :: (Int, Ctor) -> [T.Text]
     fmtCtor (tag, Ctor name fields) =
