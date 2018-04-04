@@ -4,7 +4,7 @@ module Main where
 
 import Parser
 import Macro
-import MacroPython
+import ExamplePython
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 

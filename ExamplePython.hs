@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE LambdaCase #-}
 
-module MacroPython
+module ExamplePython
     ( MacroPython(..)
     , macroPython
     ) where
