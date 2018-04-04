@@ -102,8 +102,8 @@ toLines (Enum n ctors)
     fmtCtorC (tag, Ctor n fields)
         = T.pack n
             <> ": ("
-            <> T.concat [
-                "???"
+            <> T.unwords [
+                typeCodec ty <> ","
                 | Field n ty <- fields]
             <> "),"
 
@@ -113,6 +113,19 @@ toLines (Enum n ctors)
             map fmtCtorC $ zip [0..] ctors
           )
         ++ ["})"]
+
+typeCodec :: Type -> T.Text
+typeCodec (Type f []) = codecName f
+typeCodec (Type f xs) = T.concat
+    [ codecName f
+    , "("
+    , T.intercalate ", " (map typeCodec xs)
+    , ")"
+    ]
+
+codecName :: String -> T.Text
+codecName "List" = "listC"
+codecName n = T.pack n <> "C"
 
 macroPython :: Macro MacroPython
 macroPython = Macro
