@@ -56,7 +56,7 @@ ctor = do
 
 parserEnum :: Parser MacroPython
 parserEnum = do
-    kwd "@enum"
+    kwd "@enum(deriving=Codec)"
     kwd "class"
     name <- ident
     kwd ":"
