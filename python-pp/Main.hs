@@ -1,6 +1,6 @@
 module Main where
 
-import qualified Data.Text as T
+import System.Environment
 import qualified Data.Text.IO as TIO
 
 import Text.MacroPP.Parser
@@ -10,7 +10,11 @@ import PythonPP
 
 main :: IO ()
 main = do
-    source <- TIO.readFile "sample.py"
+    fname <- getArgs >>= \case
+        [fname] -> return fname
+        _ -> error "usage: python-pp pp_FILE.py"
+
+    source <- TIO.readFile fname
     case expand macroPython source of
         Left err  -> putStrLn err
         Right src -> TIO.putStr src
