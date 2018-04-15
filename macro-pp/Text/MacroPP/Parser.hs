@@ -1,4 +1,4 @@
-module Parser
+module Text.MacroPP.Parser
     ( Parser
     , Block(..)
     , atom, kwd, ident
