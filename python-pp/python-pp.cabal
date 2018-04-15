@@ -12,8 +12,10 @@ cabal-version:       >=1.10
 
 executable python-pp
   main-is:             Main.hs
+  other-modules:
+    PythonPP
   build-depends:
-    base, text, macro-pp
+    base, text, parsec, macro-pp
   default-language:    Haskell2010
   default-extensions:
     OverloadedStrings, LambdaCase

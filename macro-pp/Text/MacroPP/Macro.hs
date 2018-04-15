@@ -3,9 +3,10 @@ module Text.MacroPP.Macro
     , expand
     ) where
 
-import Parser
 import Data.Text (Text)
 import Data.Text as T
+
+import Text.MacroPP.Parser
 
 data Macro m = Macro
     { macroParser :: Parser m

@@ -21,7 +21,7 @@ ignore :: Parser a -> Parser ()
 ignore = (*> pure ())
 
 blocks :: Parser m -> Parser [Block m]
-blocks = fmap aggregate . many . Parser.token
+blocks = fmap aggregate . many . Text.MacroPP.Parser.token
 
 atom :: String -> Parser ()
 atom = ignore . try . string
@@ -39,7 +39,7 @@ ident :: Parser String
 ident = many1 identChar <* spaces
 
 identChar :: Parser Char
-identChar = satisfy (\c -> isAlpha c || isNumber c || c `elem` "_")
+identChar = satisfy (\c -> isAlpha c || isNumber c || c == '_')
 
 spanChars :: [Token m] -> ([Char], [Token m])
 spanChars (TChar c : rest) = case spanChars rest of

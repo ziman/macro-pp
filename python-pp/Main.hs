@@ -1,10 +1,12 @@
 module Main where
 
-import Parser
-import Macro
-import ExamplePython
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
+
+import Text.MacroPP.Parser
+import Text.MacroPP.Macro
+
+import PythonPP
 
 main :: IO ()
 main = do

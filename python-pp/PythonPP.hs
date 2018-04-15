@@ -3,9 +3,6 @@ module PythonPP
     , macroPython
     ) where
 
-import Parser
-import Macro
-
 import Text.Parsec
 import Text.Parsec.Char
 import Text.Parsec.Combinator
@@ -13,6 +10,9 @@ import Text.Parsec.Combinator
 import Data.List
 import Data.Monoid
 import qualified Data.Text as T
+
+import Text.MacroPP.Macro
+import Text.MacroPP.Parser
 
 data Type = Type String [Type] deriving Show  -- name, args
 
