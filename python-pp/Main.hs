@@ -16,5 +16,5 @@ main = do
 
     source <- TIO.readFile fname
     case expand macroPython source of
-        Left err  -> putStrLn err
+        Left err  -> error err
         Right src -> TIO.putStr src
