@@ -1,7 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE LambdaCase #-}
-
-module ExamplePython
+module PythonPP
     ( MacroPython(..)
     , macroPython
     ) where

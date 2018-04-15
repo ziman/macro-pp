@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
 module Text.MacroPP.Macro
     ( Macro(..)
     , expand
