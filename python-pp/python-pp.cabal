@@ -13,7 +13,7 @@ cabal-version:       >=1.10
 executable python-pp
   main-is:             Main.hs
   other-modules:
-    PythonPP
+    PythonPP, PPrinter
   build-depends:
     base, text, parsec, macro-pp
   default-language:    Haskell2010

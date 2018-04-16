@@ -3,6 +3,7 @@ module Text.MacroPP.Macro
     , expand
     ) where
 
+import Data.Char
 import Data.Text (Text)
 import Data.Text as T
 
@@ -10,16 +11,16 @@ import Text.MacroPP.Parser
 
 data Macro m = Macro
     { macroParser :: Parser m
-    , macroToLines :: m -> [Text]
+    , macroPPrinter :: m -> Text
     }
 
 indentation :: Text -> Text
-indentation = fst . T.span (== ' ')
+indentation = fst . T.span (`elem` [' ', '\t'])
 
 layout :: Macro m -> Text -> [Block m] -> [Text]
 layout macro ind [] = []
 layout macro ind (Verbatim t : bs) = t : layout macro (indentation $ T.reverse t) bs
-layout macro ind (MacroBlock m : bs) = macroToLines macro m `before` layout macro ind bs
+layout macro ind (MacroBlock m : bs) = macroPPrinter macro m : layout macro ind bs
   where
     [] `before` ls = ls
     [x] `before` ls = [ind, x] ++ ls
