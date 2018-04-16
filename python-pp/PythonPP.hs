@@ -126,6 +126,6 @@ codecName n = T.pack n <> "C"
 
 macroPython :: Macro MacroPython
 macroPython = Macro
-    { macroParser  = parser
-    , macroToLines = toLines
+    { macroParser   = parser
+    , macroPPrinter = T.concat . toLines
     }
