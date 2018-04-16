@@ -12,7 +12,9 @@ import Data.Monoid
 import qualified Data.Text as T
 
 import Text.MacroPP.Macro
-import Text.MacroPP.Parser
+import Text.MacroPP.Parser as Parser
+
+import PPrinter
 
 data Type = Type String [Type] deriving Show  -- name, args
 
@@ -48,7 +50,7 @@ field = do
 ctor :: Parser Ctor
 ctor = do
     name <- ident
-    fields <- option [] $ parens (field `sepBy` kwd ",")
+    fields <- option [] $ Parser.parens (field `sepBy` kwd ",")
     pure $ Ctor name fields
 
 parserEnum :: Parser MacroPython

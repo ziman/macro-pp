@@ -1,7 +1,7 @@
 -- This module is similar to Text.PrettyPrint.
 -- It has a slightly different indentation behaviour
 -- and it also supports code comments with (<?).
-module Text.MacroPP.PPrinter
+module PPrinter
     ( Doc
     , int, text
     , comma, colon
@@ -14,8 +14,6 @@ module Text.MacroPP.PPrinter
     , vcat, hsep
     , punctuate
     , size, width
-    , Semigroup(..)
-    , Monoid(..)
     )
     where
 
