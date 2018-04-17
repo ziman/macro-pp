@@ -9,12 +9,12 @@ import Text.MacroPP.Macro
 import Macro
 import Parser        (parser)
 import PPrinter      (fmt)
-import Util.PPrinter (render)
+import Util.PPrinter (renderNoTrailingLF)
 
 macro :: Text.MacroPP.Macro.Macro Macro.Macro
 macro = Text.MacroPP.Macro.Macro
     { macroParser   = parser
-    , macroPPrinter = render "# " . fmt
+    , macroPPrinter = renderNoTrailingLF "# " . fmt
     }
 
 main :: IO ()

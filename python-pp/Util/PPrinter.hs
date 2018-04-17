@@ -11,7 +11,7 @@ module Util.PPrinter
     , nest
     , parens, brackets
     , quoteSingle, quoteDouble
-    , render
+    , render, renderNoTrailingLF
     , vcat, vsep, hsep
     , punctuate
     , size, width
@@ -104,6 +104,9 @@ brackets d = lbracket <> d <> rbracket
 
 render :: Text -> Doc -> Text
 render cmtStr (Doc xs) = T.unlines $ map (renderLine cmtStr) xs
+
+renderNoTrailingLF :: Text -> Doc -> Text
+renderNoTrailingLF cmtStr (Doc xs) = T.intercalate "\n" $ map (renderLine cmtStr) xs
 
 renderLine :: Text -> (Text, Text) -> Text
 renderLine _cmtStr ("", "") = ""
