@@ -17,7 +17,7 @@ class Model:
     UndominatedChoice(strict = bool)
     TopTwo
     ChooseSome(models = List[Model])
-    pass
+    #end#
 ```
 
 ...and generates the following Python source.
