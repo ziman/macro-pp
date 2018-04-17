@@ -72,6 +72,7 @@ fmt :: MacroPython -> Doc
 fmt (Enum n ctors)
     = vcat (map fmtCtor $ zip [0..] ctors)
       $+$ fmtEnum n ctors
+      $+$ blankLine
       $+$ fmtCodec n ctors
   where
     fmtType :: Type -> Doc
@@ -101,6 +102,7 @@ fmt (Enum n ctors)
                     text (T.pack cn) <> text ","
                     | Ctor cn _fields <- ctors
                 ])
+            $+$ blankLine
         )
 
     fmtCtorC :: (Int, Ctor) -> Doc
