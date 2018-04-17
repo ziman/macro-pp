@@ -14,7 +14,7 @@ import qualified Data.Text as T
 import Text.MacroPP.Macro
 import Text.MacroPP.Parser as Parser
 
-import PPrinter
+import PPrinter as PP
 
 data Type = Type String [Type] deriving Show  -- name, args
 
@@ -65,62 +65,73 @@ parserEnum = do
 parser :: Parser MacroPython
 parser = parserEnum
 
-indent :: [T.Text] -> [T.Text]
-indent = map ("    " <>)
+indent :: Doc -> Doc
+indent = nest 4
 
-toLines :: MacroPython -> [T.Text]
-toLines (Enum n ctors)
-    = concatMap fmtCtor (zip [0..] ctors)
-      ++ fmtEnum n ctors
-      ++ fmtCodec n ctors
+fmt :: MacroPython -> Doc
+fmt (Enum n ctors)
+    = vcat (map fmtCtor $ zip [0..] ctors)
+      $+$ fmtEnum n ctors
+      $+$ fmtCodec n ctors
   where
-    fmtType (Type head []) = head
-    fmtType (Type head args) = head ++ "[" ++ intercalate ", " (map fmtType args) ++ "]"
+    fmtType :: Type -> Doc
+    fmtType (Type head [])
+        = text (T.pack head)
+    fmtType (Type head args)
+        = text (T.pack head)
+            <> brackets (hsep . punctuate comma $ map fmtType args)
 
-    fmtField (Field n ty) = T.pack n <> " : " <> T.pack (fmtType ty)
+    fmtField :: Field -> Doc
+    fmtField (Field n ty) = text (T.pack n <> " : ") <> fmtType ty
 
-    fmtCtor :: (Int, Ctor) -> [T.Text]
+    fmtCtor :: (Int, Ctor) -> Doc
     fmtCtor (tag, Ctor name fields) =
-        ("class " <> T.pack name <> "(NamedTuple):")
-        : indent (
-            map fmtField fields
-            ++ [ "tag : int = " <> T.pack (show tag)
-               , ""
-               ]
+        text "class " <> text (T.pack name) <> text "(NamedTuple):"
+        $+$ indent (
+            vcat (map fmtField fields)
+            $+$ text "tag : int = " <> int tag
           )
+        $+$ blankLine
 
+    fmtEnum :: String -> [Ctor] -> Doc
     fmtEnum n ctors =
-        (T.pack n <> " = Union[")
-        : indent [
-                T.pack cn <> ","
-                | Ctor cn _fields <- ctors
-            ]
-        ++ ["]", ""]
+        text (T.pack n) <+> text "=" <+> text "Union" <> brackets (
+            blankLine
+            $+$ indent (vcat [
+                    text (T.pack cn) <> text ","
+                    | Ctor cn _fields <- ctors
+                ])
+        )
 
-    fmtCtorC :: (Int, Ctor) -> T.Text
+    fmtCtorC :: (Int, Ctor) -> Doc
     fmtCtorC (tag, Ctor n fields)
-        = T.pack n
-            <> ": ("
-            <> T.unwords [
-                typeCodec ty <> ","
-                | Field n ty <- fields]
-            <> "),"
+        = text (T.pack n)
+        <+> colon
+        <+> PP.parens (hsep [
+                typeCodec ty <> comma
+                | Field _n ty <- fields
+        ])
+        <> comma
 
+    fmtCodec :: String -> [Ctor] -> Doc
     fmtCodec n ctors =
-        (T.pack n <> "C = enumC('" <> T.pack n <> "', {")
-        : indent (
-            map fmtCtorC $ zip [0..] ctors
-          )
-        ++ ["})"]
+        text (T.pack n) <> text "C"
+        <+> text "="
+        <+> text "enumC"
+        <>  PP.parens (quoteSingle (text $ T.pack n)
+            <> comma <+> lbrace
+            $+$ indent (
+                    vcat (map fmtCtorC $ zip [0..] ctors)
+                )
+            $+$ rbrace
+        )
 
-typeCodec :: Type -> T.Text
-typeCodec (Type f []) = codecName f
-typeCodec (Type f xs) = T.concat
-    [ codecName f
-    , "("
-    , T.intercalate ", " (map typeCodec xs)
-    , ")"
-    ]
+typeCodec :: Type -> Doc
+typeCodec (Type f [])
+    = text $ codecName f
+typeCodec (Type f xs)
+    = (text $ codecName f)
+    <> PP.parens (hsep . punctuate comma $ map typeCodec xs)
 
 codecName :: String -> T.Text
 codecName "List" = "listC"
@@ -129,5 +140,5 @@ codecName n = T.pack n <> "C"
 macroPython :: Macro MacroPython
 macroPython = Macro
     { macroParser   = parser
-    , macroPPrinter = T.concat . toLines
+    , macroPPrinter = render "# " . fmt
     }

@@ -10,14 +10,17 @@ module PPrinter
     , (<?)
     , nest
     , parens, brackets
+    , quoteSingle, quoteDouble
     , render
-    , vcat, hsep
+    , vcat, vsep, hsep
     , punctuate
     , size, width
+    , blankLine
     )
     where
 
 import Data.Text      (Text)
+import qualified Data.List as L
 import qualified Data.Text as T
 import Data.Semigroup (Semigroup(..))
 import Data.Monoid    (Monoid(..))
@@ -48,6 +51,12 @@ lbracket = text "["
 rbracket = text "]"
 lbrace   = text "{"
 rbrace   = text "}"
+
+quoteSingle :: Doc -> Doc
+quoteSingle x = text "'" <> x <> text "'"
+
+quoteDouble :: Doc -> Doc
+quoteDouble x = text "\"" <> x <> text "\""
 
 instance Semigroup Doc where
     Doc xs <> Doc ys = Doc $ meld "" xs ys
@@ -107,6 +116,12 @@ vcat = foldr ($+$) mempty
 
 hsep :: [Doc] -> Doc
 hsep = foldr (<+>) mempty
+
+vsep :: [Doc] -> Doc
+vsep = vcat . L.intersperse blankLine
+
+blankLine :: Doc
+blankLine = text ""
 
 punctuate :: Doc -> [Doc] -> [Doc]
 punctuate _ []  = []
