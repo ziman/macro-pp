@@ -29,7 +29,7 @@ parserEnum = do
     kwd "class"
     name <- ident
     kwd ":"
-    ctors <- ctor `manyTill` atom "pass"
+    ctors <- ctor `manyTill` atom "#end#"
     pure $ Enum name ctors
 
 parser :: Parser Macro

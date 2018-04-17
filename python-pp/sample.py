@@ -10,7 +10,7 @@ class Model:
     UndominatedChoice(strict = bool)
     TopTwo
     ChooseSome(models = List[Model])
-    pass
+    #end#
 
 class Preprocessor:
     foo
