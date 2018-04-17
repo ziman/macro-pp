@@ -6,7 +6,16 @@ import qualified Data.Text.IO as TIO
 import Text.MacroPP.Parser
 import Text.MacroPP.Macro
 
-import PythonPP
+import Macro
+import Parser        (parser)
+import PPrinter      (fmt)
+import Util.PPrinter (render)
+
+macro :: Text.MacroPP.Macro.Macro Macro.Macro
+macro = Text.MacroPP.Macro.Macro
+    { macroParser   = parser
+    , macroPPrinter = render "# " . fmt
+    }
 
 main :: IO ()
 main = do
@@ -15,6 +24,6 @@ main = do
         _ -> error "usage: python-pp pp_FILE.py"
 
     source <- TIO.readFile fname
-    case expand macroPython source of
+    case expand macro source of
         Left err  -> error err
         Right src -> TIO.putStr src
